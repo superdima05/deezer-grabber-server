@@ -1,0 +1,6 @@
+{
+  "name": "Deezer grabber server",
+  "description": "Simple web server that will decrypt songs from Deezer",
+  "repository": "https://github.com/superdima05/deezer-grabber-server",
+  "keywords": ["deezer", "python", "python3", "server", "decrypt", "grabber"]
+}

@@ -332,4 +332,6 @@ def run(server_class=HTTPServer, handler_class=S, port=8080):
 
 if __name__ == '__main__':
 	init()
-	run(port=9431)
+	port = int(os.environ.get('PORT', '9320'))
+	print(port)
+	run(port=port)

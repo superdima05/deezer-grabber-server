@@ -1,8 +1,7 @@
 #Server for deezer-grabber
 
 #### Installation
-`pip install -r requirements.txt  
-python server.py` (Only python3)
+`pip install -r requirements.txt && python server.py` (Only python3)
 
 
 

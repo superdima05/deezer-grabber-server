@@ -5,5 +5,6 @@
 
 
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/superdima05/deezer-grabber-server/tree/heroku)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/superdima05/deezer-grabber-server/tree/heroku) (Tested on United States)
+
 

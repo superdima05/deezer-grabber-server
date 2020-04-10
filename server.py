@@ -15,13 +15,15 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from transliterate import translit, get_available_language_codes
 
 
-session = requests.Session()
-userAgent = (
+
+def newses():
+	session = requests.Session()
+	userAgent = (
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
     'AppleWebKit/537.36 (KHTML, like Gecko) '
     'Chrome/68.0.3440.106 Safari/537.36'
     )
-httpHeaders = {
+	httpHeaders = {
         'User-Agent'      : userAgent,
         'Content-Language': 'en-US',
         'Cache-Control'   : 'max-age=0',
@@ -29,9 +31,22 @@ httpHeaders = {
         'Accept-Charset'  : 'utf-8,ISO-8859-1;q=0.7,*;q=0.3',
         'Accept-Language' : 'en-US;q=0.6,en;q=0.4',
         'Connection'      : 'keep-alive',
-        }
-session.headers.update(httpHeaders)
+    }
+	session.headers.update(httpHeaders)
+	return session
 
+session = newses()
+if(os.path.exists("token")):
+	f = open("token", "r")
+	del session.cookies['arl']
+	session.cookies['arl'] = f.read()
+	f.close()
+else:
+	token = "TOKEN"
+	f = open("token", "w")
+	f.write(token)
+	f.close()
+	del session.cookies['arl']
 
 
 
@@ -304,13 +319,29 @@ class S(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
+        global session
         p = self.path[1:]
+        nt = 0
+        if(p.replace("newtok", "") != p):
+        	tok = p.split("newtok")
+        	session = None
+        	session = newses()
+        	session.cookies['arl'] = tok[1]
+        	getTokens()
+       		f = open("token", "w")
+       		f.write(tok[1])
+       		f.close()
+       		nt = 1
         try:
-        	r, name = downloadDeezer(p)
+        	if(nt == 0):
+        		r, name = downloadDeezer(p)
+        	else:
+        		r = False
+        		name = False
         except Exception:
         	r = False
         	name = False
-        print(r)
+        print(r, name)
         if(r != False):
         	self._set_response(yes=True, name=name)
         	f = open(r, "rb")
@@ -319,7 +350,10 @@ class S(BaseHTTPRequestHandler):
         	os.remove(r)
         else:
         	self._set_response(yes=False)
-        	self.wfile.write(b'{"code": 100, "desc": "error happend"}')
+        	if(nt == 0):
+        		self.wfile.write(b'{"code": 100, "desc": "error happend"}')
+        	else:
+        		self.wfile.write(b'{"code": 101, "desc": "token changed"}')
 
 def run(server_class=HTTPServer, handler_class=S, port=8080):
     server_address = ('', port)

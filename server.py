@@ -368,4 +368,4 @@ if __name__ == '__main__':
 	init()
 	port = int(os.environ.get('PORT', '9320'))
 	print(port)
-	run(port=9431)
+	run(port=port)

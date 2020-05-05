@@ -203,11 +203,11 @@ def writeFlacTags(filename, tags, imageUrl):
     os.remove('cover.png')
     return True
 
-def getTrackDownloadUrl(privateInfo, quality):
+def getTrackDownloadUrl(MD5, MEDIA_VERSION, SNGID, quality):
     char = b'\xa4'.decode('unicode_escape')
-    step1 = char.join((privateInfo['PUID'],
-                      quality, privateInfo['SNG_ID'],
-                      privateInfo['MEDIA_VERSION']))
+    step1 = char.join((MD5,
+                      quality, SNGID,
+                      MEDIA_VERSION))
     m = hashlib.md5()
     m.update(bytes([ord(x) for x in step1]))
     step2 = f'{m.hexdigest()}{char}{step1}{char}'
@@ -216,7 +216,7 @@ def getTrackDownloadUrl(privateInfo, quality):
                     modes.ECB(), default_backend())
     encryptor = cipher.encryptor()
     step3 = encryptor.update(bytes([ord(x) for x in step2])).hex()
-    cdn = privateInfo['PUID'][0]
+    cdn = MD5[0]
     decryptedUrl = f'https://e-cdns-proxy-{cdn}.dzcdn.net/mobile/1/{step3}'
     return decryptedUrl
 
@@ -276,6 +276,7 @@ def getTrack(trackId, playlist=False):
     #    print(f"Song {trackInfo['title']} not available, skipping...")
     #    return False
     privateInfo = privateApi(trackId)
+    privateTrackInfo = apiCall('deezer.pageTrack', {'SNG_ID': trackId})['DATA']
     quality = '9'
     if not quality:
         print((f"Song {trackInfo['title']} not available, skipping..."
@@ -289,7 +290,7 @@ def getTrack(trackId, playlist=False):
         print(f"{fullFilenamePathExt} already exists!")
         return fullFilenamePathExt, translit(trackInfo['artist']['name']+" - "+trackInfo['title']+" "+trackInfo['isrc']+".flac", "ru", reversed=True)
     else:
-        decryptedUrl = getTrackDownloadUrl(privateInfo, quality)
+        decryptedUrl = getTrackDownloadUrl(privateTrackInfo['MD5_ORIGIN'], privateTrackInfo['MEDIA_VERSION'], privateTrackInfo['SNG_ID'], quality)
         bfKey = getBlowfishKey(privateInfo['SNG_ID'])
         if downloadTrack(fullFilenamePath, ext, decryptedUrl, bfKey):
             tags = getTags(trackInfo, albInfo, playlist)
